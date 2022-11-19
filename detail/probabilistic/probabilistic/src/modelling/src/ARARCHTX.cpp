@@ -596,7 +596,7 @@ std::unique_ptr<ProbabilisticModule> ManufactureARARCHTX(
 
     torch::Tensor residuals_flat;
     if (X_mean.numel()) {
-        auto params_mean = std::get<0>(regressand_flat_present.lstsq(X_mean_present)).squeeze().index({torch::indexing::Slice(0, X_mean_present.sizes().at(1))});
+        auto params_mean = std::get<0>(torch::linalg::lstsq(X_mean_present, regressand_flat_present, {}, {})).reshape({-1}).index({torch::indexing::Slice(0, X_mean_present.sizes().at(1))});
         int64_t i = 0;
         if (mu.enable) {
             mu.parameter = params_mean.index({torch::indexing::Slice(i, i + mu.parameter.numel())});
@@ -700,7 +700,7 @@ std::unique_ptr<ProbabilisticModule> ManufactureARARCHTX(
     transformed_residuals_squared_flat_present.index_put_({gt_20_crimp}, residuals_squared_flat_present.index({gt_20_crimp}));
     */
     auto transformed_residuals_squared_flat_present = var_transformation_inv(residuals_squared_flat_present, vtcrimp);
-    auto params_var = std::get<0>(transformed_residuals_squared_flat_present.lstsq(X_var_present)).squeeze().index({torch::indexing::Slice(0, X_var_present.sizes().at(1))});
+    auto params_var = std::get<0>(torch::linalg::lstsq(X_var_present, transformed_residuals_squared_flat_present, {}, {})).reshape({-1}).index({torch::indexing::Slice(0, X_var_present.sizes().at(1))});
     {
         int64_t i = 0;
         if (sigma2.enable) {

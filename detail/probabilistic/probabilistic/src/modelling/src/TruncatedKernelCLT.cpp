@@ -169,7 +169,7 @@ std::shared_ptr<SamplingDistribution> ManufactureTruncatedKernelCLT(
         try {
             auto eig = estimating_equations_asymptotic_variance_collapsed.tensor.symeig(true);
             auto sqrt_asy_var = torch::matmul(std::get<1>(eig), std::get<0>(eig).sqrt().diag());
-            return std::get<0>(sqrt_asy_var.solve(estimating_equations_jacobian_collapsed.tensor));
+            return torch::linalg::solve(estimating_equations_jacobian_collapsed.tensor, sqrt_asy_var, true);
         } catch (...) {
             PROBABILISTIC_LOG_TRIVIAL_DEBUG << "estimating_equations_asymptotic_variance\n\n";
             for (const auto& item_i : estimating_equations_asymptotic_variance) {

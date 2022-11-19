@@ -2,8 +2,8 @@ COPY %cd%\SPXTR.csv %cd%\detail\SP500
 
 REM Download docker image if required.
 REM This is an 800 MB download, and progress is not displayed, so be patient.
-if not exist %cd%\detail\docker_image.tar.gz (
-    powershell -Command "(New-Object Net.WebClient).DownloadFile('https://www.dropbox.com/s/5febdw1j5i3poxh/docker_image.tar.gz?dl=1', '%cd%\detail\docker_image.tar.gz')"
+if not exist %cd%\detail\docker_image_v2.tar.gz (
+    powershell -Command "(New-Object Net.WebClient).DownloadFile('https://www.dropbox.com/s/5febdw1j5i3poxh/docker_image_v2.tar.gz?dl=1', '%cd%\detail\docker_image.tar.gz')"
 )
 
 REM Load docker image. Note that this image only contains software dependencies, and does not contain results of any pre-run

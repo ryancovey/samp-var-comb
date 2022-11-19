@@ -8,6 +8,9 @@ set(BUILD_PYTHON OFF CACHE BOOL "Build python.")
 set(USE_CUDA OFF CACHE BOOL "Use cuda.")
 set(USE_ROCM OFF CACHE BOOL "Use rocm.")
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libs.")
+set(BLAS "Generic" CACHE STRING "Selected BLAS library")
+
+find_package(BLAS REQUIRED)
 
 # To compile pytorch as a Release build and probabilistic as a Debug build,
 # we need to clear the debug postfix for the protobuf library, c.f.
@@ -52,6 +55,7 @@ macro(old_env)
     set(probabilistic_SOURCE_DIR "${save_probabilistic_source_dir}")
     set(CMAKE_BINARY_DIR "${save_cmake_binary_dir}")
     set(CMAKE_BUILD_TYPE "${save_cmake_build_type}")
+    # set(BLAS "${save_blas}")
 endmacro()
 
 macro(new_env)
@@ -59,6 +63,7 @@ macro(new_env)
         set(probabilistic_SOURCE_DIR "${new_probabilistic_source_dir}")
         set(CMAKE_BINARY_DIR "${new_cmake_binary_dir}")
         set(CMAKE_BUILD_TYPE "${new_cmake_build_type}")
+        # set(BLAS "${new_blas}")
     endif()
 endmacro()
 

@@ -1,12 +1,14 @@
-FROM r-base:4.2.0 AS base
+FROM rocker/r-ver:4.2.2 AS base
 WORKDIR /root/
 RUN apt-get update && apt-get install -y \
     build-essential \
     dos2unix \
     libcurl4-openssl-dev \
     libgsl-dev \
+    libpng-dev \
     libxml2-dev \
-    libssl-dev && \
+    libssl-dev \
+    wget && \
 rm -rf /var/lib/apt/lists/*
 COPY texlive.profile /root/
 RUN wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz && \
@@ -43,6 +45,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip && \
 rm -rf /var/lib/apt/lists/*
 RUN Rscript --vanilla -e "install.packages(c(\
+    'colorspace',\
     'DBI',\
     'distributional',\
     'egg',\
@@ -50,18 +53,21 @@ RUN Rscript --vanilla -e "install.packages(c(\
     'ggplot2',\
     'ggrepel',\
     'gridExtra',\
+    'gtable',\
     'latex2exp',\
     'lemon',\
     'MASS',\
+    'openssl',\
     'pracma',\
     'Rfast',\
+    'readr',\
     'RSQLite',\
     'tibble',\
     'tikzDevice',\
     'tsibble',\
     'xptr',\
     'zoo'\
-), dependencies = TRUE, repos = 'https://cran.rstudio.com/')"
+), repos = 'https://cran.rstudio.com/')"
 COPY probabilistic/ probabilistic/
 WORKDIR probabilistic/
 RUN Rscript --vanilla "download_external_dependencies.R"
@@ -70,6 +76,6 @@ WORKDIR /root/
 RUN rm -rf probabilistic
 
 FROM base
-COPY --from=builder /usr/lib/R/site-library/ /usr/lib/R/site-library/
-COPY --from=builder /usr/local/lib/R/site-library/ /usr/lib/R/site-library/
+COPY --from=builder /usr/local/lib/R/site-library/ /usr/local/lib/R/site-library/
+COPY --from=builder /usr/local/lib/R/library/ /usr/local/lib/R/library/
 

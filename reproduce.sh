@@ -8,7 +8,8 @@ set -e
 NESTING_USER="$(logname)"
 NESTED_USER="$(whoami)"
 
-DOCKERFILE_URL="https://www.dropbox.com/s/5febdw1j5i3poxh/docker_image.tar.gz?dl=1"
+IMAGE_FILE_NAME="docker_image_v2.tar.gz"
+IMAGE_FILE_URL="https://www.dropbox.com/s/yettoupload/${IMAGE_FILE_NAME}?dl=1"
 
 # This functions ensures that the files whose names are passed as arguments
 # is owned by $NESTING_USER.
@@ -20,10 +21,10 @@ nonsudo_ownership () {
     if [[ "$NESTED_USER" == "root" ]]; then
         if [[ "$(uname)" == "Darwin" ]]; then
             # Assume MacOS.
-            chown "${NESTING_USER}" "$@"
+            chown --recursive "${NESTING_USER}" "$@"
         else
             # Assume linux.
-            chown "${NESTING_USER}:${NESTING_USER}" "$@"
+            chown --recursive "${NESTING_USER}:${NESTING_USER}" "$@"
         fi
     fi
 }
@@ -41,23 +42,23 @@ nonsudo_ownership detail/SP500/SPXTR.csv
     # presented in the paper, only to obtain software dependencies required to conduct the analyses and reproduce the
     # results and the paper, consisting of R, some R packages, latex, and some latex packages. See detail/Dockerfile
     # for the specific packages used.
-    if [[ -f "docker_image.tar.gz" ]]; then
-        docker load --input docker_image.tar.gz
+    if [[ -f "${IMAGE_FILE_NAME}" ]]; then
+        docker load --input "${IMAGE_FILE_NAME}"
     else
         # If $DOCKERFILE_URL can be reached, download docker image from there, and load. Otherwise build from Dockerfile.
-        if curl "${DOCKERFILE_URL}" --silent --head --fail --location --output /dev/null ; then
-            curl "${DOCKERFILE_URL}" --location --output docker_image.tar.gz
-            nonsudo_ownership docker_image.tar.gz
-            docker load --input docker_image.tar.gz
-        else
+        # if curl "${IMAGE_FILE_URL}" --silent --head --fail --location --output /dev/null ; then
+        #     curl "${IMAGE_FILE_URL}" --location --output "${IMAGE_FILE_NAME}"
+        #     nonsudo_ownership "${IMAGE_FILE_NAME}"
+        #     docker load --input "${IMAGE_FILE_NAME}"
+        # else
             docker build -t sampling_variability_forecast_combinations .
-            docker save sampling_variability_forecast_combinations | gzip -9 > docker_image.tar.gz
-            nonsudo_ownership docker_image.tar.gz            
-        fi
+            docker save sampling_variability_forecast_combinations | gzip -9 > $IMAGE_FILE_NAME
+            nonsudo_ownership "${IMAGE_FILE_NAME}"            
+        # fi
     fi
 
     # Reproduce the results and the paper, which will initially reside at detail/sampling_variability_forecast_combinations.pdf.
-    docker run -ti --rm -v "$PWD":/home/docker/paper -w /home/docker/paper -u docker sampling_variability_forecast_combinations /bin/bash -c \
+    docker run -ti --rm -v "$PWD":/home/docker/paper -w /home/docker/paper sampling_variability_forecast_combinations /bin/bash -c \
         ./sampling_variability_forecast_combinations.sh
 )
 
@@ -67,4 +68,5 @@ docker image rm sampling_variability_forecast_combinations
 # Copy the paper to a more obvious location, outside of the detail/ subdirectory.
 cp detail/sampling_variability_forecast_combinations.pdf paper.pdf
 nonsudo_ownership paper.pdf
+nonsudo_ownership detail
 

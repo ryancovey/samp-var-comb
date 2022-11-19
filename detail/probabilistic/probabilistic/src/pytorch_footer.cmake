@@ -27,9 +27,11 @@ set(
 
 add_library(TorchWrapperImpl INTERFACE)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_link_libraries(TorchWrapperImpl INTERFACE -Wl,-force_load torch caffe2::mkl)
+    # target_link_libraries(TorchWrapperImpl INTERFACE -Wl,-force_load torch caffe2::mkl)
+    target_link_libraries(TorchWrapperImpl INTERFACE -Wl,-force_load torch)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_link_libraries(TorchWrapperImpl INTERFACE -Wl,--whole-archive -Wl,--no-as-needed torch caffe2::mkl)
+    # target_link_libraries(TorchWrapperImpl INTERFACE -Wl,--whole-archive -Wl,--no-as-needed torch caffe2::mkl)
+    target_link_libraries(TorchWrapperImpl INTERFACE -Wl,--whole-archive -Wl,--no-as-needed torch)
 else()
     message(FATAL_ERROR "Unrecognised Compiler.")
 endif()
@@ -48,8 +50,6 @@ if (MINGW)
     # Reinstate corrected torch compiler flags here.
     target_compile_definitions(TorchWrapperImpl INTERFACE _GLIBCXX_USE_CXX11_ABI=1)
 endif()
-
-# message(FATAL_ERROR "ATen_CPU_INCLUDE = ${ATen_CPU_INCLUDE}")
 
 add_library(TorchWrapper INTERFACE)
 target_link_libraries(TorchWrapper

@@ -2,6 +2,7 @@ library(probabilistic)
 library(readr)
 library(tsibble)
 library(openssl)
+library(ggplot2)
 
 seed_file <- "seed.txt"
 if (!file.exists(seed_file)) {
@@ -28,7 +29,7 @@ if (file.exists(save_file)) {
   
   tolerance_grad <- 0.0
   tolerance_change <- 0.0
-  ensemble_barrier <- 3.8e-7
+  ensemble_barrier <- 1.03e-6
   monte_carlo_sample_size <- 20000
   output_diagnostics <- TRUE
   

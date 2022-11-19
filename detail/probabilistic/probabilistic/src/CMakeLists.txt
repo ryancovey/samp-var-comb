@@ -165,12 +165,14 @@ add_library( R_blas INTERFACE )
 if ( BLAS_LIBS )
     target_link_libraries( R_blas INTERFACE "${BLAS_LIBS}" )
 endif()
+find_package(BLAS REQUIRED)
 
 # Use lapack implementation if provided.
 add_library( R_lapack INTERFACE )
 if ( LAPACK_LIBS )
     target_link_libraries( R_lapack INTERFACE "${LAPACK_LIBS}" )
 endif()
+find_package(LAPACK REQUIRED)
 
 add_library( R_blas_lapack INTERFACE )
 target_link_libraries( R_blas_lapack

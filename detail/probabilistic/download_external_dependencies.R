@@ -16,83 +16,12 @@ if (!dir.exists(deps.dir)) {
 
 # Boost R Package Dependency and Testing
 boost.cache.path <- cache.dependency(
-  url = "https://boostorg.jfrog.io/artifactory/main/release/1.69.0/source/boost_1_69_0.tar.gz"
+  url = "https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz"
 )
-boost.cache.path.boost <- file.path(boost.cache.path, "boost")
-boost.cache.path.libs <- file.path(boost.cache.path, "libs")
 boost.dep.path <- file.path(src.dir, "boost")  # Keep at /src to prevent paths over 100 chars.
-boost.dep.path.boost <- file.path(boost.dep.path, "boost")
-boost.dep.path.libs <- file.path(boost.dep.path, "libs")
-create_and_copy(  # Copy <deps.dir>/boost/ level files and folders.
-  from = paste0(
-    boost.cache.path,
-    .Platform$file.sep,
-    c(
-      "LICENSE_1_0.txt"
-    )
-  ),
-  to = boost.dep.path,
-  recursive = TRUE
-)
-if (!dir.exists(boost.dep.path.boost)) {
-  dir.create(boost.dep.path.boost)
-}
-# R package BH is a LinkingTo library,
-# but doesn't include all boost libraries. Libraries that are provided by the BH package
-# could be removed from the final prepared R package if LinkingTo BH.
-file.copy(
-  from = boost.cache.path.boost,
-  to = boost.dep.path,
-  overwrite = FALSE,
-  recursive = TRUE
-)
-create_and_copy(  # Copy only the boost source files that are required.
-  from = paste0(
-    boost.cache.path.libs,
-    .Platform$file.sep,
-    c(
-      "atomic",
-      "chrono",
-      "date_time",
-      "filesystem",
-      "locale",
-      "log",
-      "random",
-      "regex",
-      "system",
-      "thread"
-    )
-  ),
-  to = boost.dep.path.libs,
-  recursive = TRUE
-)
-
-# Boost for Testing Only
-boost.test.path <- file.path(test.deps.dir, "boost")
-if (!dir.exists(boost.test.path)) { dir.create(boost.test.path); }
-boost.test.path.boost <- file.path(boost.test.path, "boost")
-boost.test.path.libs <- file.path(boost.test.path, "libs")
 create_and_copy(
-  from = file.path(
-    boost.cache.path.boost,
-    c(
-      "test",
-      "timer",
-      "timer.hpp"
-    )
-  ),
-  to = boost.test.path.boost,
-  recursive = TRUE
-)
-create_and_copy(
-  from = file.path(
-    boost.cache.path.libs,
-    c(
-      "test",
-      "timer"
-    )
-  ),
-  to = boost.test.path.libs,
+  from = dir(boost.cache.path, full.names = TRUE),
+  to = boost.dep.path,
   recursive = TRUE
 )
 
@@ -127,7 +56,7 @@ if (!dir.exists(file.path("probabilistic", "src", "pytorch"))) {
   setwd(file.path("probabilistic", "src"))
   system2("git", c("clone", "--recursive", "https://github.com/pytorch/pytorch.git"))
   setwd(file.path("pytorch"))
-  system2("git", c("checkout", "tags/v1.11.0"))
+  system2("git", c("checkout", "tags/v1.13.0"))
   system2("git", c("submodule", "sync"))
   system2("git", c("submodule", "update", "--init", "--recursive", "--jobs", "0"))
   cmakelists <- readLines(con = "CMakeLists.txt")
@@ -152,3 +81,4 @@ create_and_copy(
   to = file.path(deps.dir, "Faddeeva"),
   recursive = TRUE
 )
+
